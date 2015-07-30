@@ -24,6 +24,7 @@
 
 void alert_interrupt()
 {
+ // interruot service routine
   Serial.print("Alert recieved!");
   //Don't use I2C communication in interrupt!!!
 }
@@ -35,37 +36,42 @@ void setup() {
   hfamp400.init();
 
   //Alert Interrupt Example
-  attachInterrupt(ALERT_PIN, alert_interrupt, FALLING);
+  attachInterrupt(ALERT_PIN, alert_interrupt, FALLING);  //signla line 
 
   //Board specific tuning of conversion factors - OPTIONAL - determined empirically
   hfamp400.set_voltage_scaling(FUSE_CH_1, HFAMP400_DEFAULT_VOLTAGE_SCALING*1.0326);
   hfamp400.set_voltage_scaling(FUSE_CH_2, HFAMP400_DEFAULT_VOLTAGE_SCALING*1.0326);
   hfamp400.set_voltage_scaling(FUSE_CH_3, HFAMP400_DEFAULT_VOLTAGE_SCALING*1.0326);
   
-  hfamp400.set_current_scaling(FUSE_CH_1, HFAMP400_DEFAULT_CURRENT_SCALING*4.00/4.52); 
-  hfamp400.set_current_scaling(FUSE_CH_2, HFAMP400_DEFAULT_CURRENT_SCALING*4.00/3.75);   
+  //hfamp400.set_current_scaling(FUSE_CH_1, HFAMP400_DEFAULT_CURRENT_SCALING*4.00/4.52); 
+  //hfamp400.set_current_scaling(FUSE_CH_2, HFAMP400_DEFAULT_CURRENT_SCALING*4.00/3.75);   
   
 
 
   // GateBias Example
+  //#### Marked on Board with Vout A ... Vout D
   //Set GateBias Channel A to 1.5V
-  hfamp400.set_gatebias(GATEBIAS_CH_A, 1.5);
+  hfamp400.set_gatebias(GATEBIAS_CH_VOUT_A, 1.5);
   //Set GateBias Channel B to 2.2V
-  hfamp400.set_gatebias(GATEBIAS_CH_B, 2.2);
+  hfamp400.set_gatebias(GATEBIAS_CH_VOUT_B, 2.2);
   //Set GateBias Channel C to 2.7V
-  hfamp400.set_gatebias(GATEBIAS_CH_C, 2.7);
+  hfamp400.set_gatebias(GATEBIAS_CH_VOUT_C, 2.7);
   //Set GateBias Channel D to 3.21V
-  hfamp400.set_gatebias(GATEBIAS_CH_D, 3.21);
+  hfamp400.set_gatebias(GATEBIAS_CH_VOUT_D, 3.21);
 
+  hfamp400.set_working_frequency(100e6); //Set Working Frequency to 100 Mhz => adjusts the hfpower cal. factors
+  // default 100MHz 
+  // [1MHz...3.5GHz]    Setting range 
+  
 
   //Set Limits
-  hfamp400.set_alert_limit(ALERT_TEMP_D1, 34.50); //Set Alert Limit of D1 to 34.50 degrees
-  hfamp400.set_alert_limit(ALERT_TEMP_D2, 34.50);
+  hfamp400.set_alert_limit(ALERT_TEMP_D1, 33.00); //Set Alert Limit of D1 to 34.50 degrees
+  hfamp400.set_alert_limit(ALERT_TEMP_D2, 33.00);
   hfamp400.set_alert_limit(ALERT_TEMP_AD7294, 70.00);
-  //hfamp400.set_alert_limit(ALERT_CURRENT_FUSE_1, 3.5); //Set Alert Limit of Fuse 1 Current to 2.5 Amps
-  //hfamp400.set_alert_limit(ALERT_CURRENT_FUSE_2, 3.5);
-  hfamp400.set_alert_limit(ALERT_HFPOWER_RETURN_1, -10.0); //Ser Alert Limit of HFPOWER Return 1 to -10 dBm
-  hfamp400.set_alert_limit(ALERT_HFPOWER_RETURN_2, -10.0);
+  hfamp400.set_alert_limit(ALERT_CURRENT_FUSE_1, 3.0); //Set Alert Limit of Fuse 1 Current to 2.5 Amps
+  hfamp400.set_alert_limit(ALERT_CURRENT_FUSE_2, 3.0);
+  hfamp400.set_alert_limit(ALERT_HFPOWER_RETURN_1, -12.0); //Ser Alert Limit of HFPOWER Return 1 to -12 dBm
+  hfamp400.set_alert_limit(ALERT_HFPOWER_RETURN_2, -12.0);
 
 
   //Set Modulation correction Factor
@@ -74,7 +80,6 @@ void setup() {
   hfamp400.set_hfpower_modulation_factor(HF_CH_RETURN_1, 1.0);
   hfamp400.set_hfpower_modulation_factor(HF_CH_RETURN_2, 1.0);
 
-  hfamp400.set_working_frequency(100e6); //Set Working Frequency to 100 Mhz => adjusts the hfpower cal. factors
 
   
   Serial.println("Run HF Calibration [y/N]?");
@@ -106,17 +111,19 @@ void setup() {
 
   
 
-  //Reset the Fuses
+  //Reset the Fuses  
+  //    ############### fuse2 or fuse3 selected by jumper 
   hfamp400.reset_fuse(FUSE_CH_1);
   hfamp400.reset_fuse(FUSE_CH_2);
+//  hfamp400.reset_fuse(FUSE_CH_3); wurks but same as FUSE_CH_2
 }
 
 void loop() {
   uint32_t alerts;
   float temp[4];
   float power[4];
-  float current[3];
-  float voltage[3];
+  float current[3]; // fuse 
+  float voltage[3]; // fuse  after FET  to control proper release of fuse , also usable for dc POWER INPUT MEASUREMENTS
 
 
   Serial.println("");
@@ -206,7 +213,7 @@ void loop() {
   
   delay(1000);
       
-  hfamp400.ad7294.clear_alerts(); //alerts needs to be cleared explicitly
+  hfamp400.ad7294.clear_alerts(); //alerts needs to be cleared explicitly  
   
    
 }

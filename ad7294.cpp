@@ -23,6 +23,7 @@
 #include "ad7294.h"
 
 //#define DEBUG
+//#define DEBUG_ALERT
 
 void AD7294::init ()
 {
@@ -76,23 +77,30 @@ AD7294_Status AD7294::readadcs_autocycling()
 uint32_t AD7294::get_alerts()
 {
     uint32_t alerts = 0;
-    uint8_t a;
+    uint8_t a=0xFF;
 
+    
     readreg_u8(alert_status_a,&a);
- #ifdef DEBUG
+#ifdef DEBUG_ALERT
     Serial.print("alert a= ");
     Serial.println(a,HEX);
 #endif
 
     alerts |= (uint32_t)a << 16;
+    
+    a=0xFF;
     readreg_u8(alert_status_b,&a);
- #ifdef DEBUG
+ 
+ #ifdef DEBUG_ALERT
     Serial.print("alert b= ");
     Serial.println(a,HEX);
 #endif
+ 
     alerts |= (uint32_t)a << 8;
+    a=0xFF;
+   
     readreg_u8(alert_status_c,&a);
- #ifdef DEBUG
+ #ifdef DEBUG_ALERT
     Serial.print("alert c= ");
     Serial.println(a,HEX);
 #endif
@@ -189,9 +197,12 @@ AD7294_Status AD7294::readreg_u16 (AD7294_Registers reg, uint16_t *data)
   Wire.beginTransmission (ad7294_i2c_addr);
   Wire.write (reg);
   Wire.endTransmission (true);
-
+  //delayMicroseconds(100);
+    
   Wire.requestFrom (ad7294_i2c_addr, 2);	// request 6 bytes from slave device #2
 
+  //delayMicroseconds(400);
+  
   if (Wire.available () != 2)
     return AD7294_I2C_READ_ERROR;
 
@@ -211,20 +222,35 @@ AD7294_Status AD7294::readreg_u8 (AD7294_Registers reg, uint8_t *data)
 
   
 
+  //delayMicroseconds(500000);
   Wire.beginTransmission (ad7294_i2c_addr);
   Wire.write (reg);
-  Wire.endTransmission (true);
-
+  Wire.endTransmission ();
+  //delayMicroseconds(500000);
   Wire.requestFrom (ad7294_i2c_addr, 1);	// request 6 bytes from slave device #2
 
+  //delayMicroseconds(200);
+  
   if (Wire.available () != 1)
+  {
+
+#ifdef DEBUG_ALERT 
+    Serial.println("test");
+#endif
     return AD7294_I2C_READ_ERROR;
+  }
+    
 
   while (Wire.available ())	// slave may send less than requested
     {
-      *data |= Wire.read ();
+      *data = Wire.read ();
     }
 
+
+#ifdef DEBUG_ALERT 
+    Serial.print("readreg_u8 read ");
+    Serial.println(*data,HEX);
+#endif
   
   
   return AD7294_I2C_READ_OK;

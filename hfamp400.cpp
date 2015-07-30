@@ -22,7 +22,7 @@
 #include "hfamp400.h"
 
 //#define DEBUG
-#define DEBUG_CURRENT
+//#define DEBUG_CURRENT
 
 void HFAMP400::init ()
 {
@@ -100,7 +100,7 @@ HFAMP400_Status HFAMP400::set_gatebias(GATEBIAS_CHANNEL channel, float volt)
 {
   uint16_t value;
 
-  if (!checkboundaries((int)channel, (int)(GATEBIAS_CHANNEL)GATEBIAS_CH_A, (int)(GATEBIAS_CHANNEL)GATEBIAS_CH_D))
+  if (!checkboundaries((int)channel, (int)(GATEBIAS_CHANNEL)GATEBIAS_CH_VOUT_A, (int)(GATEBIAS_CHANNEL)GATEBIAS_CH_VOUT_D))
     return ERROR_CHANNEL;
     
   if (!checkboundaries(volt, (float)0.0, (float)5.0))
