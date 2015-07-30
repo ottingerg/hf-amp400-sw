@@ -22,13 +22,20 @@
 #include <Wire.h>
 #include "hfamp400.h"
 
+uint32_t num_alerts=0;
+
 void alert_interrupt()
 {
- // interruot service routine
-  //noInterrupts();
-  Serial.print("Alert recieved!");
-  //interrupts();
   //Don't use I2C communication in interrupt!!!
+  //Keep it short
+  //Don't use delay ()
+  //Don't do serial prints
+  //Make variables shared with the main code volatile
+  //Variables shared with main code may need to be protected by "critical sections" (see below)
+  //Don't try to turn interrupts off or on
+  //millis() wont increment
+
+  num_alerts++;
 }
 
 void setup() {
