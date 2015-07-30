@@ -121,7 +121,7 @@ void setup() {
   hfamp400.set_hfpower_modulation_factor(HF_CH_RETURN_2, 1.0);
 
 
-  
+/*  
   Serial.println("Run HF Calibration [y/N]?");
   hfamp400.read_line(response,2);
   if( response[0] == 'y' || response[0] == 'Y' )
@@ -129,7 +129,7 @@ void setup() {
     Serial.println("starting calibration ...");
     hfamp400.run_hfpower_calibration();
   }
-
+*/
 /*
   
   Serial.println("Run Current Offset Calibration [y/N]?");
@@ -140,7 +140,7 @@ void setup() {
     hfamp400.run_current_offset_calibration();
   }
 */
-  
+/*  
   Serial.println("Export HF-Cal Data [y/N]?");
   hfamp400.read_line(response,2);
   if( response[0] == 'y' || response[0] == 'Y' )
@@ -148,7 +148,7 @@ void setup() {
     hfamp400.hfpowercal.export_csv();
     delay(10000);
   }
-
+*/
   
 
   //Reset the Fuses  
@@ -161,10 +161,10 @@ void setup() {
 void loop() {
   uint32_t alerts;
   char c;
-  float temp[4];
-  float power[4];
-  float current[3]; // fuse 
-  float voltage[3]; // fuse  after FET  to control proper release of fuse , also usable for dc POWER INPUT MEASUREMENTS
+  static float temp[4];
+  static float power[4];
+  static float current[3]; // fuse 
+  static float voltage[3]; // fuse  after FET  to control proper release of fuse , also usable for dc POWER INPUT MEASUREMENTS
 
  
 
@@ -176,7 +176,7 @@ void loop() {
     hfamp400.get_temperature(TEMP_CH_D2,&temp[1]);
     hfamp400.get_temperature(TEMP_CH_AD7294,&temp[2]);
     hfamp400.get_temperature(TEMP_CH_BOARD,&temp[3]);
-  
+
     //Read HF-Power
     
     hfamp400.get_hfpower(HF_CH_FORWARD_1,&power[0]);
@@ -281,13 +281,13 @@ void loop() {
         if(c == '1') digitalWrite(led_pin, HIGH);   // turn the LED on (HIGH is the voltage level)
         if(c == '0') digitalWrite(led_pin, LOW);  
         if(c == 'r') {
-          client.print(temp[0],4);
+          client.print(temp[0]);
           client.print(",");
-          client.print(temp[1],4);
+          client.print(temp[1]);
           client.print(",");
-          client.print(temp[2],4);
+          client.print(temp[2]);
           client.print(",");
-          client.println(temp[3],4);
+          client.println(temp[3]);
           
         }
       }
