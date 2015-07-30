@@ -287,7 +287,8 @@ void loop() {
           client.print(",");
           client.print(temp[2]);
           client.print(",");
-          client.println(temp[3]);
+          client.print(temp[3]);
+          client.print((char)0x0A);
           
         }
       }
