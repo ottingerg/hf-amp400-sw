@@ -110,3 +110,4 @@ private:
 };
 
 #endif				// HFPOWERCAL_H_INCLUDED
+

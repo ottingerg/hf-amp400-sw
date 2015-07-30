@@ -59,3 +59,4 @@ private:
 };
 
 #endif        // AD7415_H_INCLUDED
+

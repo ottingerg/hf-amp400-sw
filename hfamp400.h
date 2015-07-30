@@ -175,3 +175,4 @@ private:
 extern HFAMP400 hfamp400;
 
 #endif				// HFAMP400_H_INCLUDED
+

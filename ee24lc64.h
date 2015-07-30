@@ -26,3 +26,4 @@ class EE24LC64
 };
 
 #endif // EE24LC64_H_INCLUDED
+

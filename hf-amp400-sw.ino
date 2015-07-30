@@ -25,7 +25,9 @@
 void alert_interrupt()
 {
  // interruot service routine
+  //noInterrupts();
   Serial.print("Alert recieved!");
+  //interrupts();
   //Don't use I2C communication in interrupt!!!
 }
 
@@ -43,8 +45,8 @@ void setup() {
   hfamp400.set_voltage_scaling(FUSE_CH_2, HFAMP400_DEFAULT_VOLTAGE_SCALING*1.0326);
   hfamp400.set_voltage_scaling(FUSE_CH_3, HFAMP400_DEFAULT_VOLTAGE_SCALING*1.0326);
   
-  //hfamp400.set_current_scaling(FUSE_CH_1, HFAMP400_DEFAULT_CURRENT_SCALING*4.00/4.52); 
-  //hfamp400.set_current_scaling(FUSE_CH_2, HFAMP400_DEFAULT_CURRENT_SCALING*4.00/3.75);   
+  hfamp400.set_current_scaling(FUSE_CH_1, HFAMP400_DEFAULT_CURRENT_SCALING*4.00/3.43); 
+  hfamp400.set_current_scaling(FUSE_CH_2, HFAMP400_DEFAULT_CURRENT_SCALING*4.00/3.80);   
   
 
 
@@ -217,3 +219,4 @@ void loop() {
   
    
 }
+
