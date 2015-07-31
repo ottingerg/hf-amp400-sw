@@ -244,7 +244,7 @@ void loop() {
     Serial.print(" CH2= ");
     Serial.print(current[1]);
     Serial.print(" CH3= ");
-    Serial.print(current[3]);
+    Serial.print(current[2]);
     Serial.println(" [A]");
 
    alerts = hfamp400.ad7294.get_alerts();
