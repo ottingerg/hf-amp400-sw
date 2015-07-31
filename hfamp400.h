@@ -31,7 +31,7 @@
 #define EE_CURRENT_OFFSET 0xF8
 
 #define HFAMP400_DEFAULT_VOLTAGE_SCALING ((60.0 / (float)0xFFF) * 1.0326) //correction factor determined empirically
-#define HFAMP400_DEFAULT_CURRENT_SCALING ((50.0 / (float)0xFFF))
+#define HFAMP400_DEFAULT_CURRENT_SCALING ((12.5 / (float)0xFFF))
 
 
 #define ALERT_PIN 24
