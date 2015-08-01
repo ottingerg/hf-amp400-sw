@@ -35,13 +35,14 @@ public:
   char *get_string();
   char *get_string(bool clearflag);
   void set_delimiter(char d);
+  void clear_valid(void);
 
 private:
 
   char lstring[LOOPSTRING_MAXLEN];
   bool is_valid = false;
   int cnt = 0;
-  char delimiter = '\n';
+  char delimiter = 0x0A;
     
 };
 

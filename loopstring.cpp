@@ -21,6 +21,8 @@
 
 #include "loopstring.h"
 
+#define DEBUG
+
 void LOOPSTRING::add_character( char c )
 {
 #ifdef DEBUG
@@ -32,7 +34,8 @@ void LOOPSTRING::add_character( char c )
     {
       is_valid = true;
       lstring[cnt++] = 0;
-    } else {
+    } else if( c != 0x0D ) 
+    {
       lstring[cnt++] = c;
     }
   }
@@ -47,7 +50,7 @@ char *LOOPSTRING::get_string()
 
 char *LOOPSTRING::get_string(bool clearflag)
 {
-  if(clearflag) is_valid = false;
+  if(clearflag) clear_valid();
   return get_string();
 }
 
@@ -59,4 +62,10 @@ void LOOPSTRING::set_delimiter(char d)
 bool LOOPSTRING::string_valid(void)
 {
   return is_valid;
+}
+
+void LOOPSTRING::clear_valid(void)
+{
+  is_valid = false;
+  cnt = 0;
 }
