@@ -24,6 +24,7 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
+
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = {
@@ -63,9 +64,18 @@ void alert_interrupt()
 }
 
 void setup() {
+  EE24LC64 eui48eeprom;
+  char response[3];
+  
   // put your setup code here, to run once:
   Serial.begin(115200);
-  char response[3];
+  
+
+  if(eui48eeprom.init(0x51,false) == 0)
+  {
+    Serial.println("Found EUI48 EEPROM");
+    eui48eeprom.read_buffer(0xFA,mac,6);
+  }
 
   // start the Ethernet connection and the server:
   Ethernet.begin(mac, ip);

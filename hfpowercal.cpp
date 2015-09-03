@@ -24,7 +24,10 @@
 
 void HFPOWERCAL::init ()
 {
-   eeprom.init();
+   if(!eeprom.init())
+   {
+      Serial.println("Found Cal-Data EEPROM @ 0x50");
+   }
    cal_string[30] = 0; //Terminate Cal-String
    read_cal_string();
    numpoints=eeprom.read_byte(EE_NUM_POINTS);

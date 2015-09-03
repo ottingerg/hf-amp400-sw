@@ -12,16 +12,27 @@
   #include "ee24lc64.h" //I2C library
 
 
-void EE24LC64::init(void)
+byte EE24LC64::init(void)
 {
+  byte error;
+  Wire.begin();
+  Wire.beginTransmission(eeprom_addr);
+  error = Wire.endTransmission();
+  return error;
 }
 
-void EE24LC64::init(int addr)
+byte EE24LC64::init(int addr)
 {
-  init();
   eeprom_addr = addr;
+  return init();
 }
 
+
+byte EE24LC64::init(int addr,bool set_16bit_addr)
+{
+  use_16bit_addr = set_16bit_addr;
+  return init(addr);
+}
 
 
 void EE24LC64::write_buffer(unsigned int eeaddress, byte *data, byte length ) {
@@ -44,7 +55,7 @@ void EE24LC64::write_byte(unsigned int eeaddress, byte data ) {
     int rdata = data;
     
     Wire.beginTransmission(deviceaddress);
-    Wire.write((int)(eeaddress >> 8)); // MSB
+    if(use_16bit_addr) Wire.write((int)(eeaddress >> 8)); // MSB
     Wire.write((int)(eeaddress & 0xFF)); // LSB
     Wire.write(rdata);
     Wire.endTransmission();
@@ -62,7 +73,7 @@ void EE24LC64::write_byte(unsigned int eeaddress, byte data ) {
   void EE24LC64::write_page( int deviceaddress, unsigned int eeaddresspage, byte* data, byte length ) {
     
     Wire.beginTransmission(deviceaddress);
-    Wire.write((int)(eeaddresspage >> 8)); // MSB
+    if(use_16bit_addr) Wire.write((int)(eeaddresspage >> 8)); // MSB
     Wire.write((int)(eeaddresspage & 0xFF)); // LSB
     byte c;
     for ( c = 0; c < length; c++)
@@ -80,7 +91,7 @@ byte EE24LC64::read_byte( unsigned int eeaddress )
     byte rdata = 0xFF;
     
     Wire.beginTransmission(deviceaddress);
-    Wire.write((int)(eeaddress >> 8)); // MSB
+    if(use_16bit_addr) Wire.write((int)(eeaddress >> 8)); // MSB
     Wire.write((int)(eeaddress & 0xFF)); // LSB
     Wire.endTransmission();
     
@@ -102,7 +113,7 @@ byte EE24LC64::read_byte( unsigned int eeaddress )
   void EE24LC64::read_buffer( int deviceaddress, unsigned int eeaddress, byte *buffer, int length ) {
     
     Wire.beginTransmission(deviceaddress);
-    Wire.write((int)(eeaddress >> 8)); // MSB
+    if(use_16bit_addr) Wire.write((int)(eeaddress >> 8)); // MSB
     Wire.write((int)(eeaddress & 0xFF)); // LSB
     Wire.endTransmission();
     Wire.requestFrom(deviceaddress,length);

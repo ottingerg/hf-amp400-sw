@@ -6,8 +6,9 @@
 class EE24LC64
 {
   public:
-    void init ();
-    void init (int addr);
+    byte init ();
+    byte init (int addr);
+    byte init (int addr, bool set_16bit_addr);
     void write_byte(unsigned int eeaddress, byte data );
     void write_byte( int deviceaddress, unsigned int eeaddress, byte data );
     void write_page(unsigned int eeaddresspage, byte* data, byte length );
@@ -23,6 +24,7 @@ class EE24LC64
   
   private:
     int eeprom_addr = 0x50;
+    bool use_16bit_addr = true;
 };
 
 #endif // EE24LC64_H_INCLUDED
