@@ -32,9 +32,9 @@ void HFAMP400::init ()
   ad7415.init();
   hfpowercal.init();
   //Read current offset from EEPROM
-  
-  hfpowercal.eeprom.read_buffer(EE_CURRENT_OFFSET, (byte*)current_offset, (int)sizeof(current_offset));
-  
+  hfpowercal.eeprom.read_buffer(EE_VOLTAGE_CALIBRATION,(byte*)&voltage_factor, sizeof(voltage_factor));
+  hfpowercal.eeprom.read_buffer(EE_CURRENT_CALIBRATION,(byte*)&current_factor, sizeof(current_factor));
+ 
   analogRead(A0); //Dummy ADC reads to avoid uninitialized ADCs
   analogRead(A1);
   analogRead(A2);
@@ -181,66 +181,6 @@ HFAMP400_Status HFAMP400::set_voltage_scaling(FUSE_CHANNEL channel, float factor
   voltage_factor[channel] = factor;
   
   return OK;
-}
-
-HFAMP400_Status HFAMP400::run_current_offset_calibration(void)
-{
-  int adc,adc_average,i;
-  HFAMP400_Status status = OK;
-  char cstring[31];
-
-  Serial.println("==============================");
-  Serial.println("= current offset calibration =");
-  Serial.println("==============================");
-  Serial.println("Disconnect all Fuse Connectors");
-  Serial.println("Press ENTER to continue!");
-  read_line(cstring, 1);
-  
-  adc_average = 0;
-
-  for(i = 0; i < 4; i++)
-  {
-    status = get_ad7294_adcvalue(AD7294_ADC_CH_VIN_0, &adc);
-    if (status != OK)
-      return status;
-    adc_average += adc;
-  }
-
-  current_offset[FUSE_CH_1] = adc_average / i;
-
-  adc_average = 0;
-  
-  for(i = 0; i < 4; i++)
-  {
-    status = get_ad7294_adcvalue(AD7294_ADC_CH_VIN_2, &adc);
-    if (status != OK)
-      return status;
-    adc_average += adc;
-  }
-
-  current_offset[FUSE_CH_2] = adc_average / i;
-
-  adc_average = 0;
-  
-  for(i = 0; i < 4; i++)
-  {
-    adc_average += analogRead(A5);
-  }
-
-  current_offset[FUSE_CH_3] = adc_average / i;
-
-  
-  hfpowercal.eeprom.write_buffer(EE_CURRENT_OFFSET, (byte*)current_offset, (int)sizeof(current_offset));
-
-  Serial.print("Current Offsets FUSE_CH1= ");
-  Serial.print(current_offset[FUSE_CH_1]);
-  Serial.print(" FUSE_CH2= ");
-  Serial.print(current_offset[FUSE_CH_2]);
-  Serial.print("FUSE_CH3= ");
-  Serial.println(current_offset[FUSE_CH_3]);
-  
-  return OK;
-  
 }
 
 HFAMP400_Status HFAMP400::get_fuse_current(FUSE_CHANNEL channel, float *current)
@@ -451,10 +391,114 @@ int HFAMP400::read_line(char* buffer, int bufsize)
 }
 
 
+
+
 void HFAMP400::run_hfpower_calibration(void)
 {
   run_hfpower_calibration(0xF);
 }
+
+void HFAMP400::run_voltage_calibration(void)
+{
+  int i,j,k;
+  float voltage,average,factor;
+  char cstring[31];
+    
+  
+  Serial.println("===============================");
+  Serial.println("= calibration routine started =");
+  Serial.println("===============================");
+   
+
+  for(i = FUSE_CH_1; i <=  FUSE_CH_3; i++)
+  {
+    
+    Serial.print("Apply 12V to Channel ");
+    Serial.println(i-FUSE_CH_1+1);
+    while( Serial.available() == 0 ) {
+      get_fuse_voltage((FUSE_CHANNEL)i, &voltage);
+      Serial.println(voltage);
+      delay(1000);
+    }
+    read_line(cstring, 1);
+
+    average = 0.0;
+    for(k = 0; k <= 3; k++)
+    {
+      get_fuse_voltage((FUSE_CHANNEL)i, &voltage);
+      average += voltage;
+      delay(200);
+    }      
+
+    average /= 4.0;
+    Serial.print("Measured: ");
+    Serial.print(average);
+    Serial.print(" @ Channel ");
+    Serial.println(i);
+
+    factor = 12.0 / average;
+    
+    hfpowercal.eeprom.write_buffer(EE_VOLTAGE_CALIBRATION+sizeof(float)*(i-FUSE_CH_1), (byte *)&factor,sizeof(float));
+  }
+
+  
+  Serial.println("=================================");
+  Serial.println("= Voltage calibration completed =");
+  Serial.println("=================================");
+  read_line(cstring, 1);
+}
+
+
+void HFAMP400::run_current_calibration(void)
+{
+  int i,j,k;
+  float current,average,factor;
+  char cstring[31];
+    
+  Serial.println("===============================");
+  Serial.println("= calibration routine started =");
+  Serial.println("===============================");
+   
+
+  for(i = FUSE_CH_1; i <=  FUSE_CH_3; i++)
+  {
+    
+    Serial.print("Apply 2A to Channel ");
+    Serial.println(i-FUSE_CH_1+1);
+    while( Serial.available() == 0 ) {
+      get_fuse_current((FUSE_CHANNEL)i, &current);
+      Serial.println(current);
+      delay(1000);
+    }
+    read_line(cstring, 1);
+
+    average = 0.0;
+    for(k = 0; k <= 3; k++)
+    {
+      get_fuse_current((FUSE_CHANNEL)i, &current);
+      average += current;
+      delay(200);
+    }      
+
+    average /= 4.0;
+    Serial.print("Measured: ");
+    Serial.print(average);
+    Serial.print(" @ Channel ");
+    Serial.println(i);
+
+    factor = 12.0 / average;
+    
+    hfpowercal.eeprom.write_buffer(EE_CURRENT_CALIBRATION+sizeof(float)*(i-FUSE_CH_1), (byte*)&factor,sizeof(float));
+  }
+
+  
+  Serial.println("=================================");
+  Serial.println("= Current calibration completed =");
+  Serial.println("=================================");
+  read_line(cstring, 1);
+}
+
+
 
 void HFAMP400::run_hfpower_calibration(uint8_t mask)
 {
@@ -627,14 +671,14 @@ HFAMP400_Status HFAMP400::set_alert_limit(ALERT_LIMIT limit, float min_value, fl
       hyst = 0xFFE;
       break;
     case ALERT_CURRENT_FUSE_1:
-      conv_min = (1/current_factor[FUSE_CH_1]) * min_value; // + current_offset[FUSE_CH_1];
-      conv_max = (1/current_factor[FUSE_CH_1]) * max_value; // + current_offset[FUSE_CH_1];
+      conv_min = (1/current_factor[FUSE_CH_1]) * min_value;
+      conv_max = (1/current_factor[FUSE_CH_1]) * max_value;
       hyst = 0xFFE;
       break;
       
     case ALERT_CURRENT_FUSE_2:
-      conv_min = (1/current_factor[FUSE_CH_2]) * min_value; // + current_offset[FUSE_CH_2];
-      conv_max = (1/current_factor[FUSE_CH_2]) * max_value; // + current_offset[FUSE_CH_2];
+      conv_min = (1/current_factor[FUSE_CH_2]) * min_value;
+      conv_max = (1/current_factor[FUSE_CH_2]) * max_value;
       hyst = 0xFFE;
       break;        
   }

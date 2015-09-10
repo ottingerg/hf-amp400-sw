@@ -131,15 +131,15 @@ void setup() {
   hfamp400.set_hfpower_modulation_factor(HF_CH_RETURN_2, 1.0);
 
 
-/*  
+  
   Serial.println("Run HF Calibration [y/N]?");
   hfamp400.read_line(response,2);
   if( response[0] == 'y' || response[0] == 'Y' )
   {
-    Serial.println("starting calibration ...");
+    Serial.println("starting hf calibration ...");
     hfamp400.run_hfpower_calibration();
   }
-*/
+  
 /*
   
   Serial.println("Run Current Offset Calibration [y/N]?");
@@ -150,7 +150,7 @@ void setup() {
     hfamp400.run_current_offset_calibration();
   }
 */
-/*  
+  
   Serial.println("Export HF-Cal Data [y/N]?");
   hfamp400.read_line(response,2);
   if( response[0] == 'y' || response[0] == 'Y' )
@@ -158,7 +158,32 @@ void setup() {
     hfamp400.hfpowercal.export_csv();
     delay(10000);
   }
-*/
+
+  Serial.println("Run Voltage Calibration [y/N]?");
+  hfamp400.read_line(response,2);
+  if( response[0] == 'y' || response[0] == 'Y' )
+  {
+    hfamp400.set_voltage_scaling(FUSE_CH_1, HFAMP400_DEFAULT_VOLTAGE_SCALING);
+    hfamp400.set_voltage_scaling(FUSE_CH_2, HFAMP400_DEFAULT_VOLTAGE_SCALING);
+    hfamp400.set_voltage_scaling(FUSE_CH_3, HFAMP400_DEFAULT_VOLTAGE_SCALING);
+
+     
+    Serial.println("starting voltage calibration ...");
+    hfamp400.run_voltage_calibration();
+  }
+
+  Serial.println("Run Current Calibration [y/N]?");
+  hfamp400.read_line(response,2);
+  if( response[0] == 'y' || response[0] == 'Y' )
+  {
+    hfamp400.set_current_scaling(FUSE_CH_1, HFAMP400_DEFAULT_CURRENT_SCALING);
+    hfamp400.set_current_scaling(FUSE_CH_2, HFAMP400_DEFAULT_CURRENT_SCALING);
+      
+    Serial.println("starting current calibration ...");
+    //hfamp400.run_current_calibration();
+  }
+
+
   
 
   //Reset the Fuses  

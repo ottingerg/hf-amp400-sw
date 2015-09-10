@@ -55,22 +55,32 @@ enum HFPOWER_CHANNEL
    0x11F - 0x11F Reserved
    0x120 - 0x123 Frequency of 1st Calibration Point for Channel 1 (represented as float)
    0x124 - 0x127 Voltage of 1st Calibration Point for Channel 1 (represented as float)
-   0x124 - 0x127 -40dBm Voltage of 1st Calibration Point for Channel 1 (represented as float)
-   0x127 - 0x12A -20dBm Voltage of 1st Calibration Point for Channel 1 (represented as float)
+   0x128 - 0x12A -40dBm Voltage of 1st Calibration Point for Channel 1 (represented as float)
+   0x12B - 0x12F -20dBm Voltage of 1st Calibration Point for Channel 1 (represented as float)
    
    3-Tupels of Calibration Points reapeat till number of Points for Calibration is reached.
    than follows the same amount of 3-Tupels for Channel 2, Channel 3 and Channel 4
+   Also note that the two times 3-Tuples are respecting the 32 Bytes page boundary
+
  ...
  ...
 
-Also note that the two times 2-Tuples are respecting the 32 Bytes page boundary
+  0x2000 - 0x2003 Voltage Calibration Channel 1
+  0x2004 - 0x2007 Voltage Calibration Channel 2
+  0x2008 - 0x200A Voltage Calibration Channel 3
+  0x200B - 0x200F Current Calibration Channel 1
+  0x2010 - 0x2013 Current Calibration Channel 2
+  0x2014 - 0x2017 Current Calibration Channel 3
+    
+  
  
  */
 
 #define EE_CAL_STRING 0x100
 #define EE_NUM_POINTS 0x11E
 #define EE_POINT_OFFSET 0x120
-
+#define EE_VOLTAGE_CALIBRATION 0x2000
+#define EE_CURRENT_CALIBRATION 0x200B
 
 
 class HFPOWERCAL

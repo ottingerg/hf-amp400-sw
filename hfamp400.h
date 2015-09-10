@@ -28,7 +28,6 @@
 #include "ad7415.h"
 #include "hfpowercal.h"
 
-#define EE_CURRENT_OFFSET 0xF8
 
 #define HFAMP400_DEFAULT_VOLTAGE_SCALING ((60.0 / (float)0xFFF) * 1.0326) //correction factor determined empirically
 #define HFAMP400_DEFAULT_CURRENT_SCALING ((12.5 / (float)0xFFF))
@@ -127,29 +126,26 @@ public:
   int read_line(char* buffer, int bufsize);
   void run_hfpower_calibration(void);
   void run_hfpower_calibration(uint8_t mask);
+  void run_voltage_calibration(void);
+  void run_current_calibration(void);
   void reset_gatebiasing(void);
   HFAMP400_Status reset_fuse(FUSE_CHANNEL channel);
-  HFAMP400_Status run_current_offset_calibration(void);
   
 private:
   float working_frequency = 100e6;
 
-  uint16_t current_offset[3] = {
-    0,
-    0,
-    0,
-  };
-  
   float current_factor[3] = {
     HFAMP400_DEFAULT_CURRENT_SCALING,  // FUSE 1 - INA207 and 1mOhm shunt outputs 2.5V (max of AD7294 ADC) at 50A
     HFAMP400_DEFAULT_CURRENT_SCALING,  // FUSE 2 - INA207 and 1mOhm shunt outputs 2.5V (max of AD7294 ADC) at 50A
     HFAMP400_DEFAULT_CURRENT_SCALING,  // FUSE 3 - INA207 and 1mOhm shunt outputs 2.5V (max of AD7294 ADC) at 50A
   };
+  
   float voltage_factor[3] = {
     HFAMP400_DEFAULT_VOLTAGE_SCALING,
     HFAMP400_DEFAULT_VOLTAGE_SCALING,
     HFAMP400_DEFAULT_VOLTAGE_SCALING,
   };
+  
   float hfpower_modulation_factor[4] = {
     1,
     1,
