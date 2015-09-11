@@ -88,14 +88,6 @@ void setup() {
   //Alert Interrupt Example
   attachInterrupt(ALERT_PIN, alert_interrupt, FALLING);  //signla line 
 
-  //Board specific tuning of conversion factors - OPTIONAL - determined empirically
-  hfamp400.set_voltage_scaling(FUSE_CH_1, HFAMP400_DEFAULT_VOLTAGE_SCALING*1.0326);
-  hfamp400.set_voltage_scaling(FUSE_CH_2, HFAMP400_DEFAULT_VOLTAGE_SCALING*1.0326);
-  hfamp400.set_voltage_scaling(FUSE_CH_3, HFAMP400_DEFAULT_VOLTAGE_SCALING*1.0326);
-  
-  hfamp400.set_current_scaling(FUSE_CH_1, HFAMP400_DEFAULT_CURRENT_SCALING*4.00/3.43); 
-  hfamp400.set_current_scaling(FUSE_CH_2, HFAMP400_DEFAULT_CURRENT_SCALING*4.00/3.80);   
-  
 
 
   // GateBias Example
@@ -163,9 +155,6 @@ void setup() {
   hfamp400.read_line(response,2);
   if( response[0] == 'y' || response[0] == 'Y' )
   {
-    hfamp400.set_voltage_scaling(FUSE_CH_1, HFAMP400_DEFAULT_VOLTAGE_SCALING);
-    hfamp400.set_voltage_scaling(FUSE_CH_2, HFAMP400_DEFAULT_VOLTAGE_SCALING);
-    hfamp400.set_voltage_scaling(FUSE_CH_3, HFAMP400_DEFAULT_VOLTAGE_SCALING);
 
      
     Serial.println("starting voltage calibration ...");
@@ -176,21 +165,21 @@ void setup() {
   hfamp400.read_line(response,2);
   if( response[0] == 'y' || response[0] == 'Y' )
   {
-    hfamp400.set_current_scaling(FUSE_CH_1, HFAMP400_DEFAULT_CURRENT_SCALING);
-    hfamp400.set_current_scaling(FUSE_CH_2, HFAMP400_DEFAULT_CURRENT_SCALING);
-      
+
     Serial.println("starting current calibration ...");
-    //hfamp400.run_current_calibration();
+    hfamp400.run_current_calibration();
   }
 
 
   
-
+  
   //Reset the Fuses  
   //    ############### fuse2 or fuse3 selected by jumper 
   hfamp400.reset_fuse(FUSE_CH_1);
   hfamp400.reset_fuse(FUSE_CH_2);
 //  hfamp400.reset_fuse(FUSE_CH_3); wurks but same as FUSE_CH_2
+
+  
 }
 
 void loop() {
@@ -201,7 +190,7 @@ void loop() {
   static float current[3]; // fuse 
   static float voltage[3]; // fuse  after FET  to control proper release of fuse , also usable for dc POWER INPUT MEASUREMENTS
 
- 
+  
 
   if((last_adcread + ADCREAD_INTERVAL) <= millis())
   {
@@ -218,7 +207,7 @@ void loop() {
     hfamp400.get_hfpower(HF_CH_FORWARD_2,&power[1]);
     hfamp400.get_hfpower(HF_CH_RETURN_1,&power[2]);
     hfamp400.get_hfpower(HF_CH_RETURN_2,&power[3]);
-  
+    
   
     //Read Voltage
     
@@ -232,7 +221,7 @@ void loop() {
     hfamp400.get_fuse_current(FUSE_CH_1, &current[0]);
     hfamp400.get_fuse_current(FUSE_CH_2, &current[1]);
     hfamp400.get_fuse_current(FUSE_CH_3, &current[2]);
-    
+      
     last_adcread=millis();
   }   
   
@@ -298,13 +287,16 @@ void loop() {
       Serial.println("!!! ALERT: FUSE_1");
     if(alerts & ALERT_MASK_FUSE_2)
       Serial.println("!!! ALERT: FUSE_2");
+    if(alerts & ALERT_MASK_OPENDIODE)
+      Serial.println("!!! ALERT: OPENDIODE");
+    if(alerts & ALERT_MASK_OVERTEMP)
+      Serial.println("!!! ALERT: OVERTEMP");
 
     hfamp400.ad7294.clear_alerts(); //alerts needs to be cleared explicitly  
 
     last_serialprint = millis();
   }
  
-
     // listen for incoming clients
   EthernetClient client = server.available();
   if (client) {
@@ -331,6 +323,6 @@ void loop() {
       client.stop();
     }
   } 
-   
+ 
 }
 

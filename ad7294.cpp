@@ -334,9 +334,9 @@ AD7294_Status AD7294::read_temperature(int channel, float *temp)
   *temp = (float)lsb(value) * 0.25;
   if( value & 0x100) *temp += 128.0;
   if( value & 0x200) *temp -= 256.0;
-
+#ifdef DEBUG
   if( value & 0x400) Serial.println("open");
-
+#endif
   return AD7294_I2C_READ_OK;
   
 }

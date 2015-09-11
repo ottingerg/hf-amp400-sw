@@ -404,7 +404,10 @@ void HFAMP400::run_voltage_calibration(void)
   float voltage,average,factor;
   char cstring[31];
     
-  
+  set_voltage_scaling(FUSE_CH_1, HFAMP400_DEFAULT_VOLTAGE_SCALING);
+  set_voltage_scaling(FUSE_CH_2, HFAMP400_DEFAULT_VOLTAGE_SCALING);
+  set_voltage_scaling(FUSE_CH_3, HFAMP400_DEFAULT_VOLTAGE_SCALING);
+
   Serial.println("===============================");
   Serial.println("= calibration routine started =");
   Serial.println("===============================");
@@ -434,9 +437,9 @@ void HFAMP400::run_voltage_calibration(void)
     Serial.print("Measured: ");
     Serial.print(average);
     Serial.print(" @ Channel ");
-    Serial.println(i);
+    Serial.println(i+1);
 
-    factor = 12.0 / average;
+    factor =  12.0 / average * HFAMP400_DEFAULT_VOLTAGE_SCALING;
     
     hfpowercal.eeprom.write_buffer(EE_VOLTAGE_CALIBRATION+sizeof(float)*(i-FUSE_CH_1), (byte *)&factor,sizeof(float));
   }
@@ -454,15 +457,19 @@ void HFAMP400::run_current_calibration(void)
   int i,j,k;
   float current,average,factor;
   char cstring[31];
-    
+  
+  set_current_scaling(FUSE_CH_1, HFAMP400_DEFAULT_CURRENT_SCALING);
+  set_current_scaling(FUSE_CH_2, HFAMP400_DEFAULT_CURRENT_SCALING);
+      
+
   Serial.println("===============================");
   Serial.println("= calibration routine started =");
   Serial.println("===============================");
    
 
-  for(i = FUSE_CH_1; i <=  FUSE_CH_3; i++)
+  for(i = FUSE_CH_1; i <=  FUSE_CH_2; i++)
   {
-    
+     
     Serial.print("Apply 2A to Channel ");
     Serial.println(i-FUSE_CH_1+1);
     while( Serial.available() == 0 ) {
@@ -484,9 +491,9 @@ void HFAMP400::run_current_calibration(void)
     Serial.print("Measured: ");
     Serial.print(average);
     Serial.print(" @ Channel ");
-    Serial.println(i);
+    Serial.println(i+1);
 
-    factor = 12.0 / average;
+    factor = 2.0 / average * HFAMP400_DEFAULT_CURRENT_SCALING;
     
     hfpowercal.eeprom.write_buffer(EE_CURRENT_CALIBRATION+sizeof(float)*(i-FUSE_CH_1), (byte*)&factor,sizeof(float));
   }
